@@ -10,7 +10,8 @@ if (status == 'Male'):
 else:
     st.success("Female")
 
- hobby = st.selectbox("Hobbies: ", ['Dancing', 'Reading', 'Sports'])
+ hobby = st.selectbox("Hobbies: ",
+['Dancing', 'Reading', 'Sports'])
  st.write("Your hobby is: ", hobby)
 
 
