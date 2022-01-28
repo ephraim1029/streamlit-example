@@ -1,109 +1,121 @@
-import streamlit as st 
-import numpy as np 
-
-import matplotlib.pyplot as plt
-from sklearn import datasets
+import streamlit as st
+import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn import datasets
+import pandas as pd
 
-from sklearn.decomposition import PCA
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
+st.title('Logistic Regression')
 
-from sklearn.metrics import accuracy_score
+st.subheader('Understanding Logistic Regression :books:')
+st.write('Logistic regression is an algorithm used to classify observations to a discrete number of classes, 1 and 0, for example.')
 
-st.title('Streamlit Example')
+st.subheader('The Idea :bulb:')
+st.write('The goal is to predict whether the cancer is **benign** or **malignant** based on 10 real-valued features computed for each **cell nucleus**. To map predicted values to probabilities, we use the **sigmoid function**. The function maps any real value into another value between 0 (malignant)  and 1 (benign).')
 
-st.write("""
-# Explore different classifier and datasets
-Which one is the best?
-""")
+st.subheader('The process')
+st.write('To be able to predict it, we will use a linear regression like this one: ')
+st.latex(r''' y = bias + W_0x_1 + W_1x_2 + ...''')
+st.write('This time however we will transform the output using the sigmoid function to return a probability value between 0 and 1.')
+st.latex(r''' S(y) = \frac {1} {(1 + e^{-y})}''')
 
-dataset_name = st.sidebar.selectbox(
-    'Select Dataset',
-    ('Iris', 'Breast Cancer', 'Wine')
-)
+st.subheader('Linear Vs Logistic')
+st.write('Linear regression predictions **are continuous**, they will be used to predict  the score of a student, or the heigth of a person. In the other hand, Logistic regression predictions are discrete, they will assign a probability score related to some **discrete classification**, such as, pass or fail the exam.')
 
-st.write(f"## {dataset_name} Dataset")
+st.subheader('Optimizing our results :dart:')
+st.write(''' Now to find the best predictions we need to find the values of our parameters, the weights, and bias, which **will minimize the errors of our predictions**. To measure the errors of our predictions we need a **Loss function**, in linear regression, we use the sum of squared errors and then we apply the gradient descent technique to look for the best set of parameters that will give us the smallest error. However, in this scenario, the SSR loss function doesn't work.  So we will use the **cross-entropy loss** function and apply the gradient descent.
+We want to optimize the loss function with respect to our parameters, weight, and bias.
+We will start somewhere, compute the derivative, update the parameters, **move towards the direction until we find the minimum loss/error **''')
 
-classifier_name = st.sidebar.selectbox(
-    'Select classifier',
-    ('KNN', 'SVM', 'Random Forest')
-)
+class LogisticRegression:
+    def __init__(self, learning_rate=0.001, number_of_iterations=1000):
+        self.learning_rate = learning_rate
+        self.number_of_iterations = number_of_iterations
+        self.weights = None
+        self.bias = None
 
-def get_dataset(name):
-    data = None
-    if name == 'Iris':
-        data = datasets.load_iris()
-    elif name == 'Wine':
-        data = datasets.load_wine()
-    else:
-        data = datasets.load_breast_cancer()
-    X = data.data
-    y = data.target
-    return X, y
+    # fit method
+    # following Sklearn library convention
+    def fit(self, X, y):
+        # X is a numpy ndvector with m samples and n features
+        # Y size m
 
-X, y = get_dataset(dataset_name)
-st.write('Shape of dataset:', X.shape)
-st.write('number of classes:', len(np.unique(y)))
+        # init the parameters
+        n_samples, n_features = X.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0 # could also set to a random value
 
-def add_parameter_ui(clf_name):
-    params = dict()
-    if clf_name == 'SVM':
-        C = st.sidebar.slider('C', 0.01, 10.0)
-        params['C'] = C
-    elif clf_name == 'KNN':
-        K = st.sidebar.slider('K', 1, 15)
-        params['K'] = K
-    else:
-        max_depth = st.sidebar.slider('max_depth', 2, 15)
-        params['max_depth'] = max_depth
-        n_estimators = st.sidebar.slider('n_estimators', 1, 100)
-        params['n_estimators'] = n_estimators
-    return params
 
-params = add_parameter_ui(classifier_name)
+        # Gradient Descent
+        for _ in range(self.number_of_iterations):
+            # 1. apply linear model
+            # 2. approximate with the sigmoid function
+            linear_model = np.dot(X, self.weights) + self.bias
+            predicted_y = self._sigmoid(linear_model)
 
-def get_classifier(clf_name, params):
-    clf = None
-    if clf_name == 'SVM':
-        clf = SVC(C=params['C'])
-    elif clf_name == 'KNN':
-        clf = KNeighborsClassifier(n_neighbors=params['K'])
-    else:
-        clf = clf = RandomForestClassifier(n_estimators=params['n_estimators'], 
-            max_depth=params['max_depth'], random_state=1234)
-    return clf
+            # to update the weights and bias we need to compute the derivative of the loss function
+            dw = (1 / n_samples) * np.dot(X.T, (predicted_y - y)) # Check why is transposed
+            db = (1 / n_samples) * np.sum(predicted_y - y)
 
-clf = get_classifier(classifier_name, params)
-#### CLASSIFICATION ####
+            # Updating weights and bias
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
+    def predict(self, X):
+
+        linear_model = np.dot(X, self.weights) + self.bias
+        predicted_y = self._sigmoid(linear_model)
+
+        # define the decision boundaries
+        # larger than 0.5 class 1, else class 0
+        y_classes = [1 if y > 0.5 else 0 for y in predicted_y]
+        return y_classes
+
+
+    def _sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+st.subheader('Sklearn Breast Cancer Dataset - Model application')
+st.write('Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. **They describe characteristics of the cell nucleus present in the image**')
+data_load_state = st.text('Loading data...')
+data = datasets.load_breast_cancer()
+data_load_state.text('Loading data... Done!')
+
+X, y = data.data, data.target
+
+features = data.feature_names
+some_data = X[:21]
+some_label = y[:21]
+
+df = pd.DataFrame(some_data, columns=features)
+df['diagnosis'] = some_label
+
+st.write(df)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
 
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
+def accuracy(y_true, y_pred):
+    accuracy = np.sum(y_true == y_pred) / len(y_true)
+    return accuracy
+st.markdown('_Iterations determine the number of times we will update our parameters and move towards another point in our curve, hopefully, towards the minimum_. **Increasing the number of iterations may rise the accuracy of our model** :smile:')
+number_of_iterations = st.slider('Choose the number of iterations', 0, 2000, 10)
+st.markdown('_The learning rate determines the distance in which we move between iterations._')
+learning_rate = st.selectbox('Choose the learning rate', (0.001, 0.005, 0.01))
 
-acc = accuracy_score(y_test, y_pred)
+model = LogisticRegression(learning_rate=learning_rate, number_of_iterations=number_of_iterations)
+model.fit(X_train, y_train)
 
-st.write(f'Classifier = {classifier_name}')
-st.write(f'Accuracy =', acc)
+predictions = model.predict(X_test)
+st.write("Accuracy: ", accuracy(y_test, predictions))
 
-#### PLOT DATASET ####
-# Project the data onto the 2 primary principal components
-pca = PCA(2)
-X_projected = pca.fit_transform(X)
+list_of_predictions = predictions[5:15]
+list_of_actual_results = y_test[5:15]
+print(list_of_predictions)
+print(list_of_actual_results)
+s1 = pd.Series(list_of_predictions)
+s2 = pd.Series(list_of_actual_results)
 
-x1 = X_projected[:, 0]
-x2 = X_projected[:, 1]
+labels = ['Predicted diagnosis']
+df1 = pd.DataFrame(s1, columns=labels)
+df1['Expected diagnosis'] = s2
 
-fig = plt.figure()
-plt.scatter(x1, x2,
-        c=y, alpha=0.8,
-        cmap='viridis')
-
-plt.xlabel('Principal Component 1')
-plt.ylabel('Principal Component 2')
-plt.colorbar()
-
-#plt.show()
-st.pyplot(fig)
+st.write(df1)
+st.write('**Description**:  0 - malignant; 1 - benign ')
