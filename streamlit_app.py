@@ -1,3 +1,4 @@
+"""
 import streamlit as st
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -119,3 +120,12 @@ df1['Expected diagnosis'] = s2
 
 st.write(df1)
 st.write('**Description**:  0 - malignant; 1 - benign ')
+""""
+
+import streamlit as st
+import pandas as pd
+
+path = st.text_input('CSV file path')
+if path:
+    df = pd.read_csv(path)
+    df
