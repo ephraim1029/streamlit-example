@@ -56,7 +56,7 @@ test_data_precision3  = precision_score(Y_test, X_test_prediction3)
 test_data_recall_score3 = recall_score(Y_test, X_test_prediction3)
 
 import streamlit as st
-input_data = st.text_input(int('CSV file path'))
+input_data = st.number_input('CSV file path')
 input_data = input_data.split(",")
 
 tuple(input_data)
