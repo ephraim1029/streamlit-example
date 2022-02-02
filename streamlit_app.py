@@ -69,8 +69,8 @@ prediction = model1.predict(input_data_reshaped)
 print(f' Using Logistic Regression : ',prediction)
 
 if (prediction[0] == 0):
-   print(f'This Cancer is Malignant, testing by LogistiRegression.')
-   st.text('This Cancer is Malignant, testing by LogistiRegression')
+   #print(f'This Cancer is Malignant, testing by LogistiRegression.')
+   st.info('This Cancer is Malignant, testing by LogistiRegression')
 else:
-   print(f'This Cancer is Benign, testing by LogisticRegression.')
-   st.text('This Cancer is Malignant, testing by LogistiRegression')
+   #print(f'This Cancer is Benign, testing by LogisticRegression.')
+   st.info('This Cancer is Malignant, testing by LogistiRegression')
