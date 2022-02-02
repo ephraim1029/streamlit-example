@@ -66,11 +66,11 @@ input_data_as_numpy_array = np.asarray(input_data)
 input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
 
 prediction = model1.predict(input_data_reshaped)
-print(f' Using Logistic Regression : ',prediction)
+#print(f' Using Logistic Regression : ',prediction)
 
 if (prediction[0] == 0):
    #print(f'This Cancer is Malignant, testing by LogistiRegression.')
-   st.info('This Cancer is Malignant, testing by LogistiRegression')
+   st.write('This Cancer is Malignant, testing by LogistiRegression')
 else:
    #print(f'This Cancer is Benign, testing by LogisticRegression.')
-   st.info('This Cancer is Malignant, testing by LogistiRegression')
+   st.write('This Cancer is Malignant, testing by LogistiRegression')
