@@ -56,10 +56,9 @@ test_data_precision3  = precision_score(Y_test, X_test_prediction3)
 test_data_recall_score3 = recall_score(Y_test, X_test_prediction3)
 
 import streamlit as st
-input_data = st.text_input('CSV file path')
-int(input_data)
-float(input_data)
+input_data = st.text_input(float('CSV file path'))
 input_data = input_data.split(",")
+
 tuple(input_data)
 len(input_data)
 input_data_as_numpy_array = np.asarray(input_data)
