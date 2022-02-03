@@ -59,7 +59,7 @@ import streamlit as st
 input_data = st.text_input('CSV file path')
 #input_data = input('Enter the data: ')
 tuple(input_data)
-#int(input_data)
+float(input_data)
 input_data = input_data.split(",")
 
 #print(len(input_data))
