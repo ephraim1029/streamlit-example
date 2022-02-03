@@ -58,8 +58,8 @@ test_data_recall_score3 = recall_score(Y_test, X_test_prediction3)
 import streamlit as st
 input_data = st.number_input('CSV file path')
 #input_data = input('Enter the data: ')
-input_data = input_data.split(",")
 tuple(input_data)
+input_data = input_data.split(",")
 #float(input_data)
 
 #print(len(input_data))
